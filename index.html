@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planejador de Bar - App Completo e Detalhado</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+  <h1>Planejador de Bar - App Completo e Detalhado</h1>
+
+  <div class="info-box">
+    <strong>Bem-vindo ao seu Planejador de Bar:</strong> Adicione produtos, custos e utensílios. Os cálculos são feitos automaticamente. Clique em "Ver Detalhes" em cada produto para ver lucro, receita e mais. Tudo é salvo localmente para não perder dados!
+  </div>
+
+  <!-- Custos Operacionais -->
+  <section>
+    <h2>Custos Operacionais Diários e Mensais</h2>
+    <form id="costsForm">
+      <label>
+        Energia Elétrica (R$/dia estimado):
+        <input type="number" id="energyCost" min="0" step="0.01" value="5.00" />
+      </label>
+      <label>
+        Água (R$/dia estimado):
+        <input type="number" id="waterCost" min="0" step="0.01" value="3.00" />
+      </label>
+      <label>
+        Internet (R$/mês):
+        <input type="number" id="internetCost" min="0" step="0.01" value="150.00" />
+      </label>
+      <label>
+        Limpeza (R$/dia estimado):
+        <input type="number" id="cleaningCost" min="0" step="0.01" value="20.00" />
+      </label>
+      <label>
+        Número de Funcionários:
+        <input type="number" id="numEmployees" min="0" step="1" value="3" />
+      </label>
+      <label>
+        Salário Diário por Funcionário (R$):
+        <input type="number" id="salaryPerEmployee" min="0" step="0.01" value="80.00" />
+      </label>
+      <label>
+        Dias de Funcionamento por Mês:
+        <input type="number" id="operationalDays" min="1" max="31" step="1" value="26" />
+      </label>
+      <label>
+        Aluguel (R$/mês):
+        <input type="number" id="rentCost" min="0" step="0.01" value="2000.00" />
+      </label>
+      <label>
+        Pró-labore do Proprietário (R$/mês):
+        <input type="number" id="proLabore" min="0" step="0.01" value="3000.00" />
+      </label>
+      <label>
+        Seguro (R$/mês):
+        <input type="number" id="insuranceCost" min="0" step="0.01" value="150.00" />
+      </label>
+      <label>
+        Marketing/Publicidade (R$/mês):
+        <input type="number" id="marketingCost" min="0" step="0.01" value="500.00" />
+      </label>
+      <label>
+        Manutenção/Reparos (R$/mês):
+        <input type="number" id="maintenanceCost" min="0" step="0.01" value="300.00" />
+      </label>
+      <label>
+        Contabilidade/Impostos (R$/mês):
+        <input type="number" id="accountingCost" min="0" step="0.01" value="400.00" />
+      </label>
+      <label>
+        Outros Custos Fixos (R$/mês):
+        <input type="number" id="otherFixedCosts" min="0" step="0.01" value="200.00" />
+      </label>
+    </form>
+  </section>
+
+  <!-- Adicionar Novo Item -->
+  <section>
+    <button class="btn-primary" id="addItemBtn">Adicionar Novo Item</button>
+    <p>Clique para adicionar um novo produto, utensílio ou custo fixo.</p>
+  </section>
+
+  <!-- Tabela de Itens Dinâmica -->
+  <section>
+    <h2>Itens (Produtos e Utensílios)</h2>
+    <p>Edite os campos para quantidades, preços e vendas. Valores como custo total e margem são calculados automaticamente. Se o estoque estiver baixo ou margem baixa, a linha fica colorida. Clique em "Ver Detalhes" para mais informações sobre cada produto.</p>
+    <div class="table-container">
+      <table id="itemsTable" aria-label="Tabela de itens do bar">
+        <thead>
+          <tr>
+            <th>Ações</th>
+            <th>Item</th>
+            <th>Categoria</th>
+            <th>Qtd Inicial</th>
+            <th>Preço Compra (R$)</th>
+            <th>Preço Venda (R$)</th>
+            <th>Custo Total (R$)</th>
+            <th>Estoque Mín</th>
+            <th>Estoque Máx</th>
+            <th>Vendas Médias/Dia</th>
+            <th>Margem (%)</th>
+            <th>Alerta Estoque</th>
+            <th>Detalhes</th>
+          </tr>
+        </thead>
+        <tbody id="itemsTbody">
+          <!-- Itens serão adicionados dinamicamente aqui -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Resumo -->
+  <section>
+    <h2>Resumo dos Resultados Gerais</h2>
+    <div class="summary-grid">
+      <div class="info-box">
+        <p><strong>Investimento Inicial:</strong> R$ <span id="initialInvestment">0,00</span></p>
+        <p>Valor total para comprar tudo.</p>
+      </div>
+      <div class="info-box">
+        <p><strong>Custos Diários Variáveis:</strong> R$ <span id="dailyVariableCosts">0,00</span></p>
+        <p>Energia, água, internet, limpeza e salários.</p>
+        <p><strong>Custos Mensais Fixos:</strong> R$ <span id="monthlyFixedCosts">0,00</span></p>
+        <p>Aluguel, pró-labore, seguro, marketing, manutenção, contabilidade.</p>
+        <p><strong>Custos Totais Diários:</strong> R$ <span id="dailyCosts">0,00</span></p>
+        <p><strong>Custos Totais Mensais:</strong> R$ <span id="monthlyCosts">0,00</span></p>
+      </div>
+      <div class="info-box">
+        <p><strong>Faturamento Diários:</strong> R$ <span id="dailyRevenue">0,00</span></p>
+        <p>Dinheiro estimado do dia.</p>
+        <p><strong>Faturamento Mensal:</strong> R$ <span id="monthlyRevenue">0,00</span></p>
+      </div>
+      <div class="info-box">
+        <p><strong>Lucro Diário:</strong> R$ <span id="dailyProfit">0,00</span></p>
+        <p>Ganho diário estimado.</p>
+        <p><strong>Lucro Mensal:</strong> R$ <span id="monthlyProfit">0,00</span> (R$ positivo = lucro)</p>
+        <p><strong>Ponto de Equilíbrio Diário:</strong> Qtd <span id="breakEven">0</span> itens vendidos para cobrir custos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Breakdown Detalhado de Custos -->
+  <section>
+    <h2>Breakdown Detalhado de Custos</h2>
+    <div class="costs-breakdown">
+      <div class="cost-category">
+        <h3>Custos Diários Variáveis</h3>
+        <div class="cost-item">
+          <span>Energia Elétrica:</span>
+          <span>R$ <span id="energyDaily">0,00</span>/dia</span>
+        </div>
+        <div class="cost-item">
+          <span>Água:</span>
+          <span>R$ <span id="waterDaily">0,00</span>/dia</span>
+        </div>
+        <div class="cost-item">
+          <span>Internet:</span>
+          <span>R$ <span id="internetDaily">0,00</span>/dia</span>
+        </div>
+        <div class="cost-item">
+          <span>Limpeza:</span>
+          <span>R$ <span id="cleaningDaily">0,00</span>/dia</span>
+        </div>
+        <div class="cost-item">
+          <span>Salários:</span>
+          <span>R$ <span id="salariesDaily">0,00</span>/dia</span>
+        </div>
+        <div class="cost-total">
+          <strong>Total Diário Variável:</strong>
+          <strong>R$ <span id="totalDailyVariable">0,00</span></strong>
+        </div>
+      </div>
+      
+      <div class="cost-category">
+        <h3>Custos Mensais Fixos</h3>
+        <div class="cost-item">
+          <span>Aluguel:</span>
+          <span>R$ <span id="rentMonthly">0,00</span>/mês</span>
+        </div>
+        <div class="cost-item">
+          <span>Pró-labore:</span>
+          <span>R$ <span id="proLaboreMonthly">0,00</span>/mês</span>
+        </div>
+        <div class="cost-item">
+          <span>Seguro:</span>
+          <span>R$ <span id="insuranceMonthly">0,00</span>/mês</span>
+        </div>
+        <div class="cost-item">
+          <span>Marketing:</span>
+          <span>R$ <span id="marketingMonthly">0,00</span>/mês</span>
+        </div>
+        <div class="cost-item">
+          <span>Manutenção:</span>
+          <span>R$ <span id="maintenanceMonthly">0,00</span>/mês</span>
+        </div>
+        <div class="cost-item">
+          <span>Contabilidade:</span>
+          <span>R$ <span id="accountingMonthly">0,00</span>/mês</span>
+        </div>
+        <div class="cost-item">
+          <span>Outros:</span>
+          <span>R$ <span id="otherMonthly">0,00</span>/mês</span>
+        </div>
+        <div class="cost-total">
+          <strong>Total Mensal Fixo:</strong>
+          <strong>R$ <span id="totalMonthlyFixed">0,00</span></strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gráficos -->
+  <section>
+    <h2>Gráficos para Visão Geral</h2>
+    <div class="charts-grid">
+      <div class="chart-container">
+        <canvas id="investmentChart"></canvas>
+        <p>Compara investimento necessário com provável lucro mensal.</p>
+      </div>
+      <div class="chart-container">
+        <canvas id="marginChart"></canvas>
+        <p>Margens de lucro dos produtos (maiorior para menores).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal para Detalhes do Produto -->
+  <div id="modal" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+    <div class="modal">
+      <button class="modal-close" id="modalCloseBtn" aria-label="Fechar detalhes">&times;</button>
+      <h3 id="modalTitle">Detalhes do Produto</h3>
+      <div id="modalContent">
+        <!-- Conteúdo preenchido dinamicamente -->
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  </div>
+</body>
+</html>
+</content>
+</create_file>
